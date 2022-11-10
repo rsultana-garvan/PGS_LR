@@ -453,7 +453,7 @@ m.set_index('Index')
 ### Logistic regression model
 
 ```{code-cell}
-table1 = table[(table.gender == "M") & (table.inv_genotype=="NI")]
+table1 = table[(table.gender == "F") & (table.inv_genotype=="NI")]
 X = table1[table1.columns[5:]]
 Y = table1['phenotype']
 lr = LogisticRegression(random_state=42, solver='saga', n_jobs=-1, penalty='elasticnet')
@@ -518,13 +518,13 @@ table1.groupby('phenotype')['participant_id'].nunique()
 ### Grid search for 3 hyperparameters
 
 ```{code-cell}
-# parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
-#               'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
-#               'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
+              'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
+              'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
 
-parameters = {'C': [1, 10, 20],
-              'max_iter': [1600, 3200],
-              'l1_ratio': [1, 0.9]}
+#parameters = {'C': [1, 10, 20],
+#              'max_iter': [1600, 3200],
+#              'l1_ratio': [1, 0.9]}
 
 grid_lr = GridSearchCV(lr, parameters, verbose=False, scoring='roc_auc', n_jobs=-1, cv=10)
 if not sys.warnoptions:

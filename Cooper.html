@@ -3213,7 +3213,7 @@ Best score: 0.5679924242424242
 <h3>Logistic regression model<a class="headerlink" href="#id19" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[(</span><span class="n">table</span><span class="o">.</span><span class="n">gender</span> <span class="o">==</span> <span class="s2">&quot;M&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">inv_genotype</span><span class="o">==</span><span class="s2">&quot;NI&quot;</span><span class="p">)]</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">table1</span> <span class="o">=</span> <span class="n">table</span><span class="p">[(</span><span class="n">table</span><span class="o">.</span><span class="n">gender</span> <span class="o">==</span> <span class="s2">&quot;F&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">inv_genotype</span><span class="o">==</span><span class="s2">&quot;NI&quot;</span><span class="p">)]</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">table1</span><span class="p">[</span><span class="n">table1</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">5</span><span class="p">:]]</span>
 <span class="n">Y</span> <span class="o">=</span> <span class="n">table1</span><span class="p">[</span><span class="s1">&#39;phenotype&#39;</span><span class="p">]</span>
 <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s1">&#39;saga&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">penalty</span><span class="o">=</span><span class="s1">&#39;elasticnet&#39;</span><span class="p">)</span>
@@ -3223,8 +3223,8 @@ Best score: 0.5679924242424242
 </div>
 <div class="cell_output docutils container">
 <div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>phenotype
-0    480
-1    477
+0    259
+1    270
 Name: participant_id, dtype: int64
 </pre></div>
 </div>
@@ -3296,15 +3296,15 @@ Name: participant_id, dtype: int64
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.5835888364779874
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.5
 
-Non-zero coefficients: 4
+Non-zero coefficients: 0
 
-Best estimator: LogisticRegression(C=0.005, l1_ratio=0.1, max_iter=25, n_jobs=-1,
+Best estimator: LogisticRegression(C=0.005, l1_ratio=0.2, max_iter=10, n_jobs=-1,
                    penalty=&#39;elasticnet&#39;, random_state=42, solver=&#39;saga&#39;)
 Scorer: make_scorer(roc_auc_score, needs_threshold=True)
-Best params: {&#39;C&#39;: 0.005, &#39;l1_ratio&#39;: 0.1, &#39;max_iter&#39;: 25}
-Best score: 0.5212733636229314
+Best params: {&#39;C&#39;: 0.005, &#39;l1_ratio&#39;: 0.2, &#39;max_iter&#39;: 10}
+Best score: 0.5
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -3335,26 +3335,6 @@ Best score: 0.5212733636229314
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th>1</th>
-      <td>rs7520918</td>
-      <td>-0.011899</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>rs9985581</td>
-      <td>0.016555</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>rs6842271</td>
-      <td>0.016555</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>rs3806760</td>
-      <td>0.027075</td>
-    </tr>
   </tbody>
 </table>
 </div></div></div>
@@ -3389,13 +3369,13 @@ Name: participant_id, dtype: int64
 <h3>Grid search for 3 hyperparameters<a class="headerlink" href="#id23" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameters = {&#39;C&#39;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],</span>
-<span class="c1">#               &#39;max_iter&#39;: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],</span>
-<span class="c1">#               &#39;l1_ratio&#39;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
+              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1600</span><span class="p">],</span>
+              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
 
-<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
-              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1600</span><span class="p">,</span> <span class="mi">3200</span><span class="p">],</span>
-              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]}</span>
+<span class="c1">#parameters = {&#39;C&#39;: [1, 10, 20],</span>
+<span class="c1">#              &#39;max_iter&#39;: [1600, 3200],</span>
+<span class="c1">#              &#39;l1_ratio&#39;: [1, 0.9]}</span>
 
 <span class="n">grid_lr</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -3410,14 +3390,22 @@ Name: participant_id, dtype: int64
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [1, 10, 20], &#x27;l1_ratio&#x27;: [1, 0.9],
-                         &#x27;max_iter&#x27;: [1600, 3200]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
+                               30],
+                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
+                                      0.1],
+                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
+                                      1600]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-25" type="checkbox" ><label for="sk-estimator-id-25" class="sk-toggleable__label sk-toggleable__label-arrow">GridSearchCV</label><div class="sk-toggleable__content"><pre>GridSearchCV(cv=10,
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [1, 10, 20], &#x27;l1_ratio&#x27;: [1, 0.9],
-                         &#x27;max_iter&#x27;: [1600, 3200]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
+                               30],
+                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
+                                      0.1],
+                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
+                                      1600]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-26" type="checkbox" ><label for="sk-estimator-id-26" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-27" type="checkbox" ><label for="sk-estimator-id-27" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div></div></div></div></div></div></div></div></div></div>
@@ -3450,15 +3438,15 @@ Name: participant_id, dtype: int64
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.8847765567765569
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.8823443223443225
 
-Non-zero coefficients: 131
+Non-zero coefficients: 135
 
-Best estimator: LogisticRegression(C=10, l1_ratio=1, max_iter=3200, n_jobs=-1,
+Best estimator: LogisticRegression(C=10, l1_ratio=1, max_iter=1600, n_jobs=-1,
                    penalty=&#39;elasticnet&#39;, random_state=42, solver=&#39;saga&#39;)
 Scorer: make_scorer(roc_auc_score, needs_threshold=True)
-Best params: {&#39;C&#39;: 10, &#39;l1_ratio&#39;: 1, &#39;max_iter&#39;: 3200}
-Best score: 0.5429274165806673
+Best params: {&#39;C&#39;: 10, &#39;l1_ratio&#39;: 1, &#39;max_iter&#39;: 1600}
+Best score: 0.5423374613003096
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -3491,658 +3479,678 @@ Best score: 0.5429274165806673
   <tbody>
     <tr>
       <th>1</th>
-      <td>rs138844738</td>
-      <td>-4.155261</td>
+      <td>rs536718528</td>
+      <td>-3.493258</td>
     </tr>
     <tr>
       <th>2</th>
       <td>rs115879964</td>
-      <td>-4.155261</td>
+      <td>-3.236923</td>
     </tr>
     <tr>
       <th>3</th>
-      <td>rs536718528</td>
-      <td>-3.617586</td>
+      <td>rs138844738</td>
+      <td>-3.236923</td>
     </tr>
     <tr>
       <th>4</th>
       <td>rs115448944</td>
-      <td>-3.150895</td>
+      <td>-3.150863</td>
     </tr>
     <tr>
       <th>5</th>
       <td>rs71607338</td>
-      <td>-2.57904</td>
+      <td>-2.459175</td>
     </tr>
     <tr>
       <th>6</th>
       <td>rs17324625</td>
-      <td>-2.427067</td>
+      <td>-2.375675</td>
     </tr>
     <tr>
       <th>7</th>
       <td>rs2433733</td>
-      <td>-1.988805</td>
+      <td>-2.122367</td>
     </tr>
     <tr>
       <th>8</th>
       <td>rs6842271</td>
-      <td>-1.715214</td>
+      <td>-1.490298</td>
     </tr>
     <tr>
       <th>9</th>
-      <td>rs62075803</td>
-      <td>-1.652955</td>
+      <td>rs112957100</td>
+      <td>-1.482159</td>
     </tr>
     <tr>
       <th>10</th>
       <td>rs4796663</td>
-      <td>-1.652955</td>
+      <td>-1.462529</td>
     </tr>
     <tr>
       <th>11</th>
-      <td>rs112957100</td>
-      <td>-1.549041</td>
+      <td>rs62075803</td>
+      <td>-1.462529</td>
     </tr>
     <tr>
       <th>12</th>
       <td>rs79976845</td>
-      <td>-1.439649</td>
+      <td>-1.41457</td>
     </tr>
     <tr>
       <th>13</th>
       <td>rs74950708</td>
-      <td>-1.321806</td>
+      <td>-1.286647</td>
     </tr>
     <tr>
       <th>14</th>
       <td>rs11021711</td>
-      <td>-1.198849</td>
+      <td>-1.135808</td>
     </tr>
     <tr>
       <th>15</th>
-      <td>rs1065712</td>
-      <td>-1.095391</td>
+      <td>rs444618</td>
+      <td>-1.096937</td>
     </tr>
     <tr>
       <th>16</th>
-      <td>rs444618</td>
-      <td>-1.090401</td>
+      <td>rs13131187</td>
+      <td>-1.06443</td>
     </tr>
     <tr>
       <th>17</th>
-      <td>rs13131187</td>
-      <td>-1.017069</td>
+      <td>rs1065712</td>
+      <td>-1.046937</td>
     </tr>
     <tr>
       <th>18</th>
       <td>rs375017</td>
-      <td>-1.003348</td>
+      <td>-1.00013</td>
     </tr>
     <tr>
       <th>19</th>
       <td>rs11248057</td>
-      <td>-0.968769</td>
+      <td>-0.923794</td>
     </tr>
     <tr>
       <th>20</th>
       <td>rs494312</td>
-      <td>-0.932152</td>
+      <td>-0.910373</td>
     </tr>
     <tr>
       <th>21</th>
       <td>rs3733349</td>
-      <td>-0.883251</td>
+      <td>-0.874234</td>
     </tr>
     <tr>
       <th>22</th>
       <td>rs140859835</td>
-      <td>-0.836965</td>
+      <td>-0.816871</td>
     </tr>
     <tr>
       <th>23</th>
       <td>rs7535292</td>
-      <td>-0.718728</td>
+      <td>-0.693323</td>
     </tr>
     <tr>
       <th>24</th>
       <td>rs7515378</td>
-      <td>-0.699743</td>
+      <td>-0.64884</td>
     </tr>
     <tr>
       <th>25</th>
-      <td>rs734073</td>
-      <td>-0.657171</td>
+      <td>rs76848738</td>
+      <td>-0.645325</td>
     </tr>
     <tr>
       <th>26</th>
-      <td>rs76848738</td>
-      <td>-0.613196</td>
+      <td>rs734073</td>
+      <td>-0.6447</td>
     </tr>
     <tr>
       <th>27</th>
-      <td>rs4482120</td>
-      <td>-0.610804</td>
+      <td>rs6871718</td>
+      <td>-0.598179</td>
     </tr>
     <tr>
       <th>28</th>
-      <td>rs6871718</td>
-      <td>-0.604013</td>
+      <td>rs74609071</td>
+      <td>-0.550948</td>
     </tr>
     <tr>
       <th>29</th>
       <td>rs112318363</td>
-      <td>-0.522652</td>
+      <td>-0.541075</td>
     </tr>
     <tr>
       <th>30</th>
-      <td>rs74609071</td>
-      <td>-0.505636</td>
+      <td>rs77312060</td>
+      <td>-0.486015</td>
     </tr>
     <tr>
       <th>31</th>
       <td>rs12499663</td>
-      <td>-0.467277</td>
+      <td>-0.467528</td>
     </tr>
     <tr>
       <th>32</th>
-      <td>rs77312060</td>
-      <td>-0.455806</td>
+      <td>rs7666159</td>
+      <td>-0.459958</td>
     </tr>
     <tr>
       <th>33</th>
-      <td>rs3744427</td>
-      <td>-0.437119</td>
+      <td>rs4482120</td>
+      <td>-0.445968</td>
     </tr>
     <tr>
       <th>34</th>
-      <td>rs12434297</td>
-      <td>-0.431097</td>
+      <td>rs34333</td>
+      <td>-0.437741</td>
     </tr>
     <tr>
       <th>35</th>
-      <td>rs11589479</td>
-      <td>-0.430368</td>
+      <td>rs4921799</td>
+      <td>-0.42115</td>
     </tr>
     <tr>
       <th>36</th>
-      <td>rs7666159</td>
-      <td>-0.427637</td>
+      <td>rs1372420</td>
+      <td>-0.409859</td>
     </tr>
     <tr>
       <th>37</th>
-      <td>rs34333</td>
-      <td>-0.413831</td>
+      <td>rs73211813</td>
+      <td>-0.408829</td>
     </tr>
     <tr>
       <th>38</th>
-      <td>rs10110312</td>
-      <td>-0.399533</td>
+      <td>rs12434297</td>
+      <td>-0.40404</td>
     </tr>
     <tr>
       <th>39</th>
-      <td>rs4921799</td>
-      <td>-0.395144</td>
+      <td>rs3744427</td>
+      <td>-0.395949</td>
     </tr>
     <tr>
       <th>40</th>
-      <td>rs1372420</td>
-      <td>-0.388175</td>
+      <td>rs11589479</td>
+      <td>-0.381571</td>
     </tr>
     <tr>
       <th>41</th>
-      <td>rs10515816</td>
-      <td>-0.384538</td>
+      <td>rs1736103</td>
+      <td>-0.37609</td>
     </tr>
     <tr>
       <th>42</th>
-      <td>rs1736103</td>
-      <td>-0.381249</td>
+      <td>rs10515816</td>
+      <td>-0.364467</td>
     </tr>
     <tr>
       <th>43</th>
-      <td>rs73211813</td>
-      <td>-0.354654</td>
+      <td>rs10448130</td>
+      <td>-0.350618</td>
     </tr>
     <tr>
       <th>44</th>
-      <td>rs10448130</td>
-      <td>-0.33797</td>
+      <td>rs999361</td>
+      <td>-0.337483</td>
     </tr>
     <tr>
       <th>45</th>
       <td>rs764324</td>
-      <td>-0.313281</td>
+      <td>-0.327358</td>
     </tr>
     <tr>
       <th>46</th>
-      <td>rs4841589</td>
-      <td>-0.298304</td>
+      <td>rs10110312</td>
+      <td>-0.32732</td>
     </tr>
     <tr>
       <th>47</th>
-      <td>rs999361</td>
-      <td>-0.278567</td>
+      <td>rs4841589</td>
+      <td>-0.302866</td>
     </tr>
     <tr>
       <th>48</th>
       <td>rs7387252</td>
-      <td>-0.254134</td>
+      <td>-0.2811</td>
     </tr>
     <tr>
       <th>49</th>
       <td>rs72846765</td>
-      <td>-0.253638</td>
+      <td>-0.198362</td>
     </tr>
     <tr>
       <th>50</th>
       <td>rs71371995</td>
-      <td>-0.187556</td>
+      <td>-0.166029</td>
     </tr>
     <tr>
       <th>51</th>
       <td>rs34992950</td>
-      <td>-0.183292</td>
+      <td>-0.161417</td>
     </tr>
     <tr>
       <th>52</th>
-      <td>rs11579790</td>
-      <td>-0.141663</td>
+      <td>rs13161496</td>
+      <td>-0.147935</td>
     </tr>
     <tr>
       <th>53</th>
-      <td>rs9971953</td>
-      <td>-0.140982</td>
+      <td>rs9971789</td>
+      <td>-0.145874</td>
     </tr>
     <tr>
       <th>54</th>
-      <td>rs9971789</td>
-      <td>-0.140982</td>
+      <td>rs9971953</td>
+      <td>-0.145874</td>
     </tr>
     <tr>
       <th>55</th>
-      <td>rs7520918</td>
-      <td>-0.132976</td>
+      <td>rs2275579</td>
+      <td>-0.135143</td>
     </tr>
     <tr>
       <th>56</th>
-      <td>rs35933728</td>
-      <td>-0.128462</td>
+      <td>rs7520918</td>
+      <td>-0.133665</td>
     </tr>
     <tr>
       <th>57</th>
-      <td>rs13161496</td>
-      <td>-0.126504</td>
+      <td>rs35933728</td>
+      <td>-0.129423</td>
     </tr>
     <tr>
       <th>58</th>
-      <td>rs28691231</td>
-      <td>-0.113809</td>
+      <td>rs11579790</td>
+      <td>-0.105686</td>
     </tr>
     <tr>
       <th>59</th>
-      <td>rs4859611</td>
-      <td>-0.081506</td>
+      <td>rs379066</td>
+      <td>-0.092179</td>
     </tr>
     <tr>
       <th>60</th>
-      <td>rs379066</td>
-      <td>-0.054031</td>
+      <td>rs144115304</td>
+      <td>-0.08501</td>
     </tr>
     <tr>
       <th>61</th>
-      <td>rs72803476</td>
-      <td>-0.048141</td>
+      <td>rs115581042</td>
+      <td>-0.08501</td>
     </tr>
     <tr>
       <th>62</th>
-      <td>rs7826007</td>
-      <td>-0.021814</td>
+      <td>rs28691231</td>
+      <td>-0.082306</td>
     </tr>
     <tr>
       <th>63</th>
-      <td>rs35456861</td>
-      <td>-0.01947</td>
+      <td>rs7826007</td>
+      <td>-0.068925</td>
     </tr>
     <tr>
       <th>64</th>
-      <td>rs148514732</td>
-      <td>-0.010154</td>
+      <td>rs4859611</td>
+      <td>-0.065793</td>
     </tr>
     <tr>
       <th>65</th>
-      <td>rs9330264</td>
-      <td>-0.008158</td>
+      <td>rs72803476</td>
+      <td>-0.047771</td>
     </tr>
     <tr>
       <th>66</th>
-      <td>rs72838312</td>
-      <td>-0.000916</td>
+      <td>rs35456861</td>
+      <td>-0.041141</td>
     </tr>
     <tr>
       <th>67</th>
-      <td>rs12543164</td>
-      <td>0.007514</td>
+      <td>rs72838312</td>
+      <td>-0.02186</td>
     </tr>
     <tr>
       <th>68</th>
-      <td>rs1501467</td>
-      <td>0.008177</td>
+      <td>rs9330264</td>
+      <td>-0.006829</td>
     </tr>
     <tr>
       <th>69</th>
-      <td>rs150107452</td>
-      <td>0.029482</td>
+      <td>rs4241591</td>
+      <td>0.002109</td>
     </tr>
     <tr>
       <th>70</th>
-      <td>rs4241591</td>
-      <td>0.036761</td>
+      <td>rs1269243287</td>
+      <td>0.005753</td>
     </tr>
     <tr>
       <th>71</th>
-      <td>rs1269243287</td>
-      <td>0.044491</td>
+      <td>rs148514732</td>
+      <td>0.009729</td>
     </tr>
     <tr>
       <th>72</th>
-      <td>rs2128786</td>
-      <td>0.051102</td>
+      <td>rs12995314</td>
+      <td>0.013468</td>
     </tr>
     <tr>
       <th>73</th>
-      <td>rs2075583</td>
-      <td>0.066752</td>
+      <td>rs62190394</td>
+      <td>0.013468</td>
     </tr>
     <tr>
       <th>74</th>
-      <td>rs3785891</td>
-      <td>0.091773</td>
+      <td>rs2128786</td>
+      <td>0.032639</td>
     </tr>
     <tr>
       <th>75</th>
-      <td>rs12995314</td>
-      <td>0.108912</td>
+      <td>rs4416502</td>
+      <td>0.043478</td>
     </tr>
     <tr>
       <th>76</th>
-      <td>rs62190394</td>
-      <td>0.108912</td>
+      <td>rs6532244</td>
+      <td>0.051635</td>
     </tr>
     <tr>
       <th>77</th>
-      <td>rs1949362</td>
-      <td>0.110172</td>
+      <td>rs2075583</td>
+      <td>0.055962</td>
     </tr>
     <tr>
       <th>78</th>
-      <td>rs7682766</td>
-      <td>0.120521</td>
+      <td>rs150107452</td>
+      <td>0.065968</td>
     </tr>
     <tr>
       <th>79</th>
-      <td>rs6532182</td>
-      <td>0.12645</td>
+      <td>rs188239285</td>
+      <td>0.089048</td>
     </tr>
     <tr>
       <th>80</th>
-      <td>rs4331494</td>
-      <td>0.140858</td>
+      <td>rs3785891</td>
+      <td>0.097461</td>
     </tr>
     <tr>
       <th>81</th>
-      <td>rs12935995</td>
-      <td>0.148705</td>
+      <td>rs1949362</td>
+      <td>0.103354</td>
     </tr>
     <tr>
       <th>82</th>
       <td>rs1859223</td>
-      <td>0.150722</td>
+      <td>0.106879</td>
     </tr>
     <tr>
       <th>83</th>
-      <td>rs7104332</td>
-      <td>0.155063</td>
+      <td>rs12935995</td>
+      <td>0.116756</td>
     </tr>
     <tr>
       <th>84</th>
-      <td>rs3850745</td>
-      <td>0.219926</td>
+      <td>rs6532182</td>
+      <td>0.119138</td>
     </tr>
     <tr>
       <th>85</th>
-      <td>rs11097213</td>
-      <td>0.221927</td>
+      <td>rs7682766</td>
+      <td>0.120179</td>
     </tr>
     <tr>
       <th>86</th>
-      <td>rs117979807</td>
-      <td>0.232891</td>
+      <td>rs7104332</td>
+      <td>0.142885</td>
     </tr>
     <tr>
       <th>87</th>
-      <td>rs2410595</td>
-      <td>0.2445</td>
+      <td>rs4331494</td>
+      <td>0.146549</td>
     </tr>
     <tr>
       <th>88</th>
-      <td>rs35776335</td>
-      <td>0.287265</td>
+      <td>rs4495967</td>
+      <td>0.201517</td>
     </tr>
     <tr>
       <th>89</th>
-      <td>rs12101192</td>
-      <td>0.326314</td>
+      <td>rs3850745</td>
+      <td>0.204549</td>
     </tr>
     <tr>
       <th>90</th>
-      <td>rs4495967</td>
-      <td>0.341328</td>
+      <td>rs117979807</td>
+      <td>0.206888</td>
     </tr>
     <tr>
       <th>91</th>
-      <td>rs79828056</td>
-      <td>0.353429</td>
+      <td>rs11097213</td>
+      <td>0.246609</td>
     </tr>
     <tr>
       <th>92</th>
-      <td>rs11264302</td>
-      <td>0.368833</td>
+      <td>rs2410595</td>
+      <td>0.247702</td>
     </tr>
     <tr>
       <th>93</th>
-      <td>rs17016235</td>
-      <td>0.383153</td>
+      <td>rs35776335</td>
+      <td>0.307797</td>
     </tr>
     <tr>
       <th>94</th>
-      <td>rs6532190</td>
-      <td>0.383153</td>
+      <td>rs34572188</td>
+      <td>0.317785</td>
     </tr>
     <tr>
       <th>95</th>
-      <td>rs34572188</td>
-      <td>0.393827</td>
+      <td>rs79828056</td>
+      <td>0.328313</td>
     </tr>
     <tr>
       <th>96</th>
-      <td>rs208024</td>
-      <td>0.402916</td>
+      <td>rs11264302</td>
+      <td>0.335154</td>
     </tr>
     <tr>
       <th>97</th>
-      <td>rs13188899</td>
-      <td>0.430538</td>
+      <td>rs12101192</td>
+      <td>0.353448</td>
     </tr>
     <tr>
       <th>98</th>
-      <td>rs6964</td>
-      <td>0.445559</td>
+      <td>rs6532190</td>
+      <td>0.383833</td>
     </tr>
     <tr>
       <th>99</th>
-      <td>rs75214905</td>
-      <td>0.458369</td>
+      <td>rs17016235</td>
+      <td>0.383833</td>
     </tr>
     <tr>
       <th>100</th>
-      <td>rs3822023</td>
-      <td>0.458818</td>
+      <td>rs208024</td>
+      <td>0.395948</td>
     </tr>
     <tr>
       <th>101</th>
-      <td>rs231454</td>
-      <td>0.496512</td>
+      <td>rs6964</td>
+      <td>0.400163</td>
     </tr>
     <tr>
       <th>102</th>
-      <td>rs4897753</td>
-      <td>0.501664</td>
+      <td>rs13188899</td>
+      <td>0.400635</td>
     </tr>
     <tr>
       <th>103</th>
-      <td>rs11097297</td>
-      <td>0.514293</td>
+      <td>rs75214905</td>
+      <td>0.448792</td>
     </tr>
     <tr>
       <th>104</th>
-      <td>rs148894916</td>
-      <td>0.565314</td>
+      <td>rs231454</td>
+      <td>0.453333</td>
     </tr>
     <tr>
       <th>105</th>
-      <td>rs143756122</td>
-      <td>0.565314</td>
+      <td>rs4897753</td>
+      <td>0.474336</td>
     </tr>
     <tr>
       <th>106</th>
-      <td>rs201304809</td>
-      <td>0.586162</td>
+      <td>rs3822023</td>
+      <td>0.481299</td>
     </tr>
     <tr>
       <th>107</th>
-      <td>rs10831599</td>
-      <td>0.612322</td>
+      <td>rs11097297</td>
+      <td>0.50514</td>
     </tr>
     <tr>
       <th>108</th>
-      <td>rs7515370</td>
-      <td>0.632874</td>
+      <td>rs148894916</td>
+      <td>0.512481</td>
     </tr>
     <tr>
       <th>109</th>
-      <td>rs9799610</td>
-      <td>0.642287</td>
+      <td>rs143756122</td>
+      <td>0.512481</td>
     </tr>
     <tr>
       <th>110</th>
-      <td>rs2412116</td>
-      <td>0.660505</td>
+      <td>rs201304809</td>
+      <td>0.552597</td>
     </tr>
     <tr>
       <th>111</th>
-      <td>rs112270735</td>
-      <td>0.673886</td>
+      <td>rs9799610</td>
+      <td>0.589052</td>
     </tr>
     <tr>
       <th>112</th>
-      <td>rs12150561</td>
-      <td>0.82272</td>
+      <td>rs7515370</td>
+      <td>0.590988</td>
     </tr>
     <tr>
       <th>113</th>
-      <td>rs7734182</td>
-      <td>0.898797</td>
+      <td>rs2412116</td>
+      <td>0.606108</td>
     </tr>
     <tr>
       <th>114</th>
-      <td>rs6836715</td>
-      <td>0.936025</td>
+      <td>rs10831599</td>
+      <td>0.63325</td>
     </tr>
     <tr>
       <th>115</th>
-      <td>rs78197677</td>
-      <td>0.968978</td>
+      <td>rs112270735</td>
+      <td>0.650203</td>
     </tr>
     <tr>
       <th>116</th>
-      <td>rs6599389</td>
-      <td>1.057432</td>
+      <td>rs12150561</td>
+      <td>0.762482</td>
     </tr>
     <tr>
       <th>117</th>
-      <td>rs34288580</td>
-      <td>1.086857</td>
+      <td>rs7734182</td>
+      <td>0.87229</td>
     </tr>
     <tr>
       <th>118</th>
-      <td>rs5848</td>
-      <td>1.09313</td>
+      <td>rs6836715</td>
+      <td>0.940261</td>
     </tr>
     <tr>
       <th>119</th>
-      <td>rs3806760</td>
-      <td>1.103029</td>
+      <td>rs78197677</td>
+      <td>0.94527</td>
     </tr>
     <tr>
       <th>120</th>
-      <td>rs142448570</td>
-      <td>1.167941</td>
+      <td>rs6599389</td>
+      <td>0.97037</td>
     </tr>
     <tr>
       <th>121</th>
-      <td>rs41311559</td>
-      <td>1.289618</td>
+      <td>rs5848</td>
+      <td>1.021609</td>
     </tr>
     <tr>
       <th>122</th>
-      <td>rs9985581</td>
-      <td>1.394087</td>
+      <td>rs34288580</td>
+      <td>1.093809</td>
     </tr>
     <tr>
       <th>123</th>
-      <td>rs3850379</td>
-      <td>1.404536</td>
+      <td>rs3806760</td>
+      <td>1.12312</td>
     </tr>
     <tr>
       <th>124</th>
-      <td>rs55805734</td>
-      <td>1.418262</td>
+      <td>rs142448570</td>
+      <td>1.144445</td>
     </tr>
     <tr>
       <th>125</th>
-      <td>rs117230705</td>
-      <td>1.559671</td>
+      <td>rs9985581</td>
+      <td>1.201727</td>
     </tr>
     <tr>
       <th>126</th>
-      <td>rs74677851</td>
-      <td>1.919257</td>
+      <td>rs3850379</td>
+      <td>1.339205</td>
     </tr>
     <tr>
       <th>127</th>
-      <td>rs4028634</td>
-      <td>2.386557</td>
+      <td>rs41311559</td>
+      <td>1.342318</td>
     </tr>
     <tr>
       <th>128</th>
-      <td>rs11601088</td>
-      <td>2.926625</td>
+      <td>rs55805734</td>
+      <td>1.366606</td>
     </tr>
     <tr>
       <th>129</th>
-      <td>rs1800606</td>
-      <td>3.409027</td>
+      <td>rs117230705</td>
+      <td>1.507199</td>
     </tr>
     <tr>
       <th>130</th>
-      <td>rs8064765</td>
-      <td>5.881005</td>
+      <td>rs74677851</td>
+      <td>1.842153</td>
     </tr>
     <tr>
       <th>131</th>
+      <td>rs4028634</td>
+      <td>2.266745</td>
+    </tr>
+    <tr>
+      <th>132</th>
+      <td>rs11601088</td>
+      <td>2.572796</td>
+    </tr>
+    <tr>
+      <th>133</th>
+      <td>rs1800606</td>
+      <td>3.028369</td>
+    </tr>
+    <tr>
+      <th>134</th>
+      <td>rs8064765</td>
+      <td>5.384808</td>
+    </tr>
+    <tr>
+      <th>135</th>
       <td>rs79531911</td>
-      <td>7.603942</td>
+      <td>5.653969</td>
     </tr>
   </tbody>
 </table>
