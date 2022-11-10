@@ -2001,13 +2001,13 @@ Name: participant_id, dtype: int64
 <h3>Grid search for 3 hyperparameters<a class="headerlink" href="#id8" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-             <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1600</span><span class="p">],</span>
-             <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameters = {&#39;C&#39;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],</span>
+<span class="c1">#              &#39;max_iter&#39;: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],</span>
+<span class="c1">#              &#39;l1_ratio&#39;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}</span>
 
-<span class="c1"># parameters = {&#39;C&#39;: [0.05, 0.1, 0.5],</span>
-<span class="c1">#              &#39;max_iter&#39;: [10, 25],</span>
-<span class="c1">#              &#39;l1_ratio&#39;: [0.7, 0.6, 0.5]}</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">],</span>
+              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">],</span>
+              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">]}</span>
 
 <span class="n">grid_lr</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -2022,22 +2022,14 @@ Name: participant_id, dtype: int64
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.01, 0.02, 0.05], &#x27;l1_ratio&#x27;: [0.5, 0.4, 0.3],
+                         &#x27;max_iter&#x27;: [10, 25]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-10" type="checkbox" ><label for="sk-estimator-id-10" class="sk-toggleable__label sk-toggleable__label-arrow">GridSearchCV</label><div class="sk-toggleable__content"><pre>GridSearchCV(cv=10,
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.01, 0.02, 0.05], &#x27;l1_ratio&#x27;: [0.5, 0.4, 0.3],
+                         &#x27;max_iter&#x27;: [10, 25]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-11" type="checkbox" ><label for="sk-estimator-id-11" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-12" type="checkbox" ><label for="sk-estimator-id-12" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div></div></div></div></div></div></div></div></div></div>
@@ -2188,13 +2180,13 @@ Name: participant_id, dtype: int64
 <h3>Grid search for 3 hyperparameters<a class="headerlink" href="#id11" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-             <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1600</span><span class="p">],</span>
-             <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameters = {&#39;C&#39;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],</span>
+<span class="c1">#               &#39;max_iter&#39;: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],</span>
+<span class="c1">#               &#39;l1_ratio&#39;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}</span>
 
-<span class="c1">#parameters = {&#39;C&#39;: [0.005, 0.01],</span>
-<span class="c1">#              &#39;max_iter&#39;: [10, 25, 50],</span>
-<span class="c1">#              &#39;l1_ratio&#39;: [0.2, 0.1]}</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
+              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">],</span>
+              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
 
 <span class="n">grid_lr</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -2209,22 +2201,14 @@ Name: participant_id, dtype: int64
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01], &#x27;l1_ratio&#x27;: [0.2, 0.1],
+                         &#x27;max_iter&#x27;: [10, 25, 50]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-13" type="checkbox" ><label for="sk-estimator-id-13" class="sk-toggleable__label sk-toggleable__label-arrow">GridSearchCV</label><div class="sk-toggleable__content"><pre>GridSearchCV(cv=10,
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01], &#x27;l1_ratio&#x27;: [0.2, 0.1],
+                         &#x27;max_iter&#x27;: [10, 25, 50]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-14" type="checkbox" ><label for="sk-estimator-id-14" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-15" type="checkbox" ><label for="sk-estimator-id-15" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div></div></div></div></div></div></div></div></div></div>
@@ -2370,13 +2354,13 @@ Name: participant_id, dtype: int64
 <h3>Grid search for 3 hyperparameters<a class="headerlink" href="#id14" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-             <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1600</span><span class="p">],</span>
-             <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameters = {&#39;C&#39;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],</span>
+<span class="c1">#               &#39;max_iter&#39;: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],</span>
+<span class="c1">#               &#39;l1_ratio&#39;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}</span>
 
-<span class="c1"># parameters = {&#39;C&#39;: [0.01, 0.02],</span>
-<span class="c1">#              &#39;max_iter&#39;: [50, 75, 100],</span>
-<span class="c1">#              &#39;l1_ratio&#39;: [0.2, 0.1]}</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">],</span>
+              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
 
 <span class="n">grid_lr</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -2391,22 +2375,14 @@ Name: participant_id, dtype: int64
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02], &#x27;l1_ratio&#x27;: [0.2, 0.1],
+                         &#x27;max_iter&#x27;: [50, 100, 200]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-16" type="checkbox" ><label for="sk-estimator-id-16" class="sk-toggleable__label sk-toggleable__label-arrow">GridSearchCV</label><div class="sk-toggleable__content"><pre>GridSearchCV(cv=10,
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02], &#x27;l1_ratio&#x27;: [0.2, 0.1],
+                         &#x27;max_iter&#x27;: [50, 100, 200]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-17" type="checkbox" ><label for="sk-estimator-id-17" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-18" type="checkbox" ><label for="sk-estimator-id-18" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div></div></div></div></div></div></div></div></div></div>
@@ -4008,13 +3984,13 @@ Name: participant_id, dtype: int64
 <h3>Grid search for 3 hyperparameters<a class="headerlink" href="#id29" title="Permalink to this headline">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span>
-             <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">1600</span><span class="p">],</span>
-             <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]}</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># parameters = {&#39;C&#39;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],</span>
+<span class="c1">#              &#39;max_iter&#39;: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],</span>
+<span class="c1">#              &#39;l1_ratio&#39;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}</span>
 
-<span class="c1">#parameters = {&#39;C&#39;: [0.005, 0.01],</span>
-<span class="c1">#              &#39;max_iter&#39;: [10, 25],</span>
-<span class="c1">#              &#39;l1_ratio&#39;: [0.2, 0.1]}</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mf">0.005</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">],</span>
+              <span class="s1">&#39;max_iter&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">25</span><span class="p">],</span>
+              <span class="s1">&#39;l1_ratio&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.9</span><span class="p">]}</span>
 
 <span class="n">grid_lr</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">lr</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="s1">&#39;roc_auc&#39;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 <span class="k">if</span> <span class="ow">not</span> <span class="n">sys</span><span class="o">.</span><span class="n">warnoptions</span><span class="p">:</span>
@@ -4029,22 +4005,14 @@ Name: participant_id, dtype: int64
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01], &#x27;l1_ratio&#x27;: [1, 0.9],
+                         &#x27;max_iter&#x27;: [10, 25]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-31" type="checkbox" ><label for="sk-estimator-id-31" class="sk-toggleable__label sk-toggleable__label-arrow">GridSearchCV</label><div class="sk-toggleable__content"><pre>GridSearchCV(cv=10,
              estimator=LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;,
                                           random_state=42, solver=&#x27;saga&#x27;),
              n_jobs=-1,
-             param_grid={&#x27;C&#x27;: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20,
-                               30],
-                         &#x27;l1_ratio&#x27;: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2,
-                                      0.1],
-                         &#x27;max_iter&#x27;: [10, 25, 50, 75, 100, 150, 200, 400, 800,
-                                      1600]},
+             param_grid={&#x27;C&#x27;: [0.005, 0.01], &#x27;l1_ratio&#x27;: [1, 0.9],
+                         &#x27;max_iter&#x27;: [10, 25]},
              scoring=&#x27;roc_auc&#x27;, verbose=False)</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-32" type="checkbox" ><label for="sk-estimator-id-32" class="sk-toggleable__label sk-toggleable__label-arrow">estimator: LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-33" type="checkbox" ><label for="sk-estimator-id-33" class="sk-toggleable__label sk-toggleable__label-arrow">LogisticRegression</label><div class="sk-toggleable__content"><pre>LogisticRegression(n_jobs=-1, penalty=&#x27;elasticnet&#x27;, random_state=42,
                    solver=&#x27;saga&#x27;)</pre></div></div></div></div></div></div></div></div></div></div></div></div>

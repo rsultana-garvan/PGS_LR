@@ -243,13 +243,13 @@ table1.groupby('phenotype')['participant_id'].nunique()
 ### Grid search for 3 hyperparameters
 
 ```{code-cell}
-parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
-             'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
-             'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+# parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
+#              'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
+#              'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
 
-# parameters = {'C': [0.05, 0.1, 0.5],
-#              'max_iter': [10, 25],
-#              'l1_ratio': [0.7, 0.6, 0.5]}
+parameters = {'C': [0.01, 0.02, 0.05],
+              'max_iter': [10, 25],
+              'l1_ratio': [0.5, 0.4, 0.3]}
 
 grid_lr = GridSearchCV(lr, parameters, verbose=False, scoring='roc_auc', n_jobs=-1, cv=10)
 if not sys.warnoptions:
@@ -298,13 +298,13 @@ table1.groupby('phenotype')['participant_id'].nunique()
 ### Grid search for 3 hyperparameters
 
 ```{code-cell}
-parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
-             'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
-             'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+# parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
+#               'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
+#               'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
 
-#parameters = {'C': [0.005, 0.01],
-#              'max_iter': [10, 25, 50],
-#              'l1_ratio': [0.2, 0.1]}
+parameters = {'C': [0.005, 0.01],
+              'max_iter': [10, 25, 50],
+              'l1_ratio': [0.2, 0.1]}
 
 grid_lr = GridSearchCV(lr, parameters, verbose=False, scoring='roc_auc', n_jobs=-1, cv=10)
 if not sys.warnoptions:
@@ -353,13 +353,13 @@ table1.groupby('phenotype')['participant_id'].nunique()
 ### Grid search for 3 hyperparameters
 
 ```{code-cell}
-parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
-             'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
-             'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+# parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
+#               'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
+#               'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
 
-# parameters = {'C': [0.01, 0.02],
-#              'max_iter': [50, 75, 100],
-#              'l1_ratio': [0.2, 0.1]}
+parameters = {'C': [0.005, 0.01, 0.02],
+              'max_iter': [50, 100, 200],
+              'l1_ratio': [0.2, 0.1]}
 
 grid_lr = GridSearchCV(lr, parameters, verbose=False, scoring='roc_auc', n_jobs=-1, cv=10)
 if not sys.warnoptions:
@@ -628,13 +628,13 @@ table1.groupby('phenotype')['participant_id'].nunique()
 ### Grid search for 3 hyperparameters
 
 ```{code-cell}
-parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
-             'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
-             'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
+# parameters = {'C': [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],
+#              'max_iter': [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],
+#              'l1_ratio': [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]}
 
-#parameters = {'C': [0.005, 0.01],
-#              'max_iter': [10, 25],
-#              'l1_ratio': [0.2, 0.1]}
+parameters = {'C': [0.005, 0.01],
+              'max_iter': [10, 25],
+              'l1_ratio': [1, 0.9]}
 
 grid_lr = GridSearchCV(lr, parameters, verbose=False, scoring='roc_auc', n_jobs=-1, cv=10)
 if not sys.warnoptions:
