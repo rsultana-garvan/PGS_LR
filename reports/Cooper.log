@@ -17,32 +17,17 @@ Traceback (most recent call last):
     raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
 nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
 ------------------
-best_lr = grid_lr.best_estimator_
-
-max_auc_score = roc_auc_score(Y, best_lr.predict_proba(X)[:, 1])
-coefs = best_lr.coef_[0, :]
-num_coef = np.sum(coefs != 0)
-X_header = np.array(X.columns)
-
-data_array = np.vstack((X_header, coefs))
-model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
-print(f'Non-zero coefficients: {num_coef}\n')
-print(f'Best estimator: {grid_lr.best_estimator_}')
-print(f'Scorer: {grid_lr.scorer_}')
-print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
-m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
-m.reset_index(drop=True).assign(Index=range(len(m))+1).set_index('Index')
+table1 = table[table.inv_genotype=="NI")]
+X = table1[table1.columns[5:]]
+Y = table1['phenotype']
+lr = LogisticRegression(random_state=42, solver='saga', n_jobs=-1, penalty='elasticnet')
+table1.groupby('phenotype')['participant_id'].nunique()
 ------------------
 
-[0;31m---------------------------------------------------------------------------[0m
-[0;31mTypeError[0m                                 Traceback (most recent call last)
-Cell [0;32mIn [11], line 17[0m
-[1;32m     15[0m [38;5;28mprint[39m([38;5;124mf[39m[38;5;124m'[39m[38;5;124mBest score: [39m[38;5;132;01m{[39;00mgrid_lr[38;5;241m.[39mbest_score_[38;5;132;01m}[39;00m[38;5;130;01m\n[39;00m[38;5;124m'[39m)
-[1;32m     16[0m m [38;5;241m=[39m model_coefs[model_coefs[[38;5;124m'[39m[38;5;124mCoefficient[39m[38;5;124m'[39m] [38;5;241m!=[39m [38;5;241m0[39m ][38;5;241m.[39msort_values(by[38;5;241m=[39m[38;5;124m'[39m[38;5;124mCoefficient[39m[38;5;124m'[39m)
-[0;32m---> 17[0m m[38;5;241m.[39mreset_index(drop[38;5;241m=[39m[38;5;28;01mTrue[39;00m)[38;5;241m.[39massign(Index[38;5;241m=[39m[38;5;28;43mrange[39;49m[43m([49m[38;5;28;43mlen[39;49m[43m([49m[43mm[49m[43m)[49m[43m)[49m[38;5;241;43m+[39;49m[38;5;241;43m1[39;49m)[38;5;241m.[39mset_index([38;5;124m'[39m[38;5;124mIndex[39m[38;5;124m'[39m)
+[0;36m  Cell [0;32mIn [27], line 1[0;36m[0m
+[0;31m    table1 = table[table.inv_genotype=="NI")][0m
+[0m                                           ^[0m
+[0;31mSyntaxError[0m[0;31m:[0m closing parenthesis ')' does not match opening parenthesis '['
 
-[0;31mTypeError[0m: unsupported operand type(s) for +: 'range' and 'int'
-TypeError: unsupported operand type(s) for +: 'range' and 'int'
+SyntaxError: closing parenthesis ')' does not match opening parenthesis '[' (3030410016.py, line 1)
 
