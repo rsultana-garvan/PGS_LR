@@ -118,7 +118,7 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "all"
