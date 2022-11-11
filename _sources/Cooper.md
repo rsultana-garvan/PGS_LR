@@ -111,7 +111,7 @@ print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best AUC score: {grid_lr.best_score_}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
@@ -131,7 +131,6 @@ clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_rat
 count = 0
 for train_index, test_index in rkf.split(X):
     count = count + 1
-    print(count, "TRAIN:", train_index, "TEST:", test_index)
 
     X_train, X_test = X.iloc[train_index], X.iloc[test_index]
     y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
@@ -143,9 +142,9 @@ for train_index, test_index in rkf.split(X):
 
     X_header = np.array(X_train.columns)
     data_array = np.vstack((X_header, clf.coef_[0,:]))
-    model_weights = pd.DataFrame(data=data_array.T,columns=['SNP', 'Coefficient'])
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
     m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
-    model_weights.to_csv(m_name, sep='\t',index=False, line_terminator='\n')
+    model_coefs.to_csv(m_name, sep='\t',index=False)
 
 # Fit predictor to statistically significant features (just once!!!)
 clf.fit(X, Y)
@@ -161,11 +160,9 @@ AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False, line_terminator='\
 AUC_std= st.stdev(AUCs)
 AUC_mean= st.mean(AUCs)
 
-num_coef = np.sum(clf.coef_[0,:] != 0)
 print(f'In-Sample AUC: {auc}')
 print(f'MeanCV AUC: {AUC_mean}')
 print(f'Standard Deviation CV AUC: {AUC_std}')
-print(f'Non-zero coefficients: {num_coef}')
 ```
 
 ## Males
