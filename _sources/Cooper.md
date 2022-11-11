@@ -207,16 +207,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "M"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -262,16 +309,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "F"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -317,16 +411,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "NN"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -372,16 +513,64 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "NI"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -427,16 +616,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "II"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -482,16 +718,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "M-NN"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -537,16 +820,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "M-NI"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -592,16 +922,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "M-II"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -647,16 +1024,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "F-NN"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -702,16 +1126,63 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "F-NI"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 
@@ -757,14 +1228,61 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best score: {grid_lr.best_score_}\n')
+print(f'Best score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
 m.set_index('Index')
+```
+
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "F-II"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_coefs.to_csv(m_name, sep='\t',index=False)
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
