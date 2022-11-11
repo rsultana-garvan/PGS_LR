@@ -1538,7 +1538,7 @@ Best AUC score: 0.5492
 
 <span class="c1">#AUC results from the 50 predictors</span>
 <span class="n">AUC_out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">AUCs</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AUC&#39;</span><span class="p">])</span>
-<span class="n">AUC_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;data/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_AUCs.txt&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">line_terminator</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">AUC_out</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;data/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">_AUCs.txt&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\t</span><span class="s1">&#39;</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
 <span class="n">AUC_std</span><span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">AUCs</span><span class="p">)</span>
 <span class="n">AUC_mean</span><span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">AUCs</span><span class="p">)</span>
@@ -1553,10 +1553,6 @@ Best AUC score: 0.5492
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>In-Sample AUC: 0.5552
 MeanCV AUC: 0.5512
 Standard Deviation CV AUC: 0.0303
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/y0/1x_8r5js5_z6xvnv37zjwr6r0000gn/T/ipykernel_60081/2884735338.py:35: FutureWarning: the &#39;line_terminator&#39;&#39; keyword is deprecated, use &#39;lineterminator&#39; instead.
-  AUC_out.to_csv(f&quot;data/{name}_AUCs.txt&quot;, sep=&#39;\t&#39;,index=False, line_terminator=&#39;\n&#39;)
 </pre></div>
 </div>
 </div>

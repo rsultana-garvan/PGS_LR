@@ -155,7 +155,7 @@ auc = roc_auc_score(Y, y_pred)
 
 #AUC results from the 50 predictors
 AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
-AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False, line_terminator='\n')
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False)
 
 AUC_std= st.stdev(AUCs)
 AUC_mean= st.mean(AUCs)
