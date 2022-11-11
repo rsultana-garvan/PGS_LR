@@ -25,9 +25,10 @@ kernelspec:
 import os, sys, warnings
 import numpy as np
 import pandas as pd
+import statistics as st
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RepeatedKFold
 from sklearn.exceptions import ConvergenceWarning
 ```
 
@@ -117,6 +118,55 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
+### 10-fold cross validation (5-times)
+
+```{code-cell}
+name = "all"
+AUCs = list()
+bp = grid_lr.best_params_
+rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+      solver='saga', n_jobs=-1, penalty='elasticnet')
+
+count = 0
+for train_index, test_index in rkf.split(X):
+    count = count + 1
+    print(count, "TRAIN:", train_index, "TEST:", test_index)
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
+    clf.fit(X_train, y_train)
+
+    y_pred = clf.predict_proba(X_test)[:,1]
+    auc = roc_auc_score(y_test, y_pred)
+    AUCs.append(auc)
+
+    X_header = np.array(X_train.columns)
+    data_array = np.vstack((X_header, clf.coef_[0,:]))
+    model_weights = pd.DataFrame(data=data_array.T,columns=['SNP', 'Coefficient'])
+    m_name = f'data/{name}_10fold_repeat{count}_coefficients.txt'
+    model_weights.to_csv(m_name, sep='\t',index=False, line_terminator='\n')
+
+# Fit predictor to statistically significant features (just once!!!)
+clf.fit(X, Y)
+y_pred = clf.predict_proba(X)[:,1]
+
+# This in-sample AUC should be better than the AUCs from the repeated cross-validation
+auc = roc_auc_score(Y, y_pred)
+
+#AUC results from the 50 predictors
+AUC_out = pd.DataFrame(AUCs, columns=['AUC'])
+AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False, line_terminator='\n')
+
+AUC_std= st.stdev(AUCs)
+AUC_mean= st.mean(AUCs)
+
+num_coef = np.sum(clf.coef_[0,:] != 0)
+print(f'In-Sample AUC: {auc}')
+print(f'MeanCV AUC: {AUC_mean}')
+print(f'Standard Deviation CV AUC: {AUC_std}')
+print(f'Non-zero coefficients: {num_coef}')
+```
 
 ## Males
 
