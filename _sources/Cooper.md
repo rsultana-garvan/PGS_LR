@@ -124,7 +124,7 @@ m.set_index('Index')
 name = "all"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -219,13 +219,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "M"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -321,13 +321,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "F"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -423,13 +423,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "NN"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -526,13 +526,13 @@ m.set_index('Index')
 ```
 
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "NI"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -628,13 +628,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "II"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -730,13 +730,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "M-NN"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -832,13 +832,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "M-NI"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -934,13 +934,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "M-II"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -1036,13 +1036,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "F-NN"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -1138,13 +1138,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "F-NI"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
@@ -1240,13 +1240,13 @@ m.Index= m.Index + 1
 m.set_index('Index')
 ```
 
-### 10-fold cross validation (5-times)
+### 5-fold cross validation (10 times)
 
 ```{code-cell}
 name = "F-II"
 AUCs = list()
 bp = grid_lr.best_params_
-rkf = RepeatedKFold(n_splits=10, n_repeats=5, random_state=42)
+rkf = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
 clf = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
       solver='saga', n_jobs=-1, penalty='elasticnet')
 
