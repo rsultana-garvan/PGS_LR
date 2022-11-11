@@ -1432,12 +1432,12 @@ Name: participant_id, dtype: int64
 
 <span class="n">data_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">X_header</span><span class="p">,</span> <span class="n">coefs</span><span class="p">))</span>
 <span class="n">model_coefs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_array</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SNP&#39;</span><span class="p">,</span> <span class="s1">&#39;Coefficient&#39;</span><span class="p">])</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Max AUC score:</span><span class="si">{</span><span class="n">max_auc_score</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Max AUC score:</span><span class="si">{</span><span class="n">max_auc_score</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Non-zero coefficients: </span><span class="si">{</span><span class="n">num_coef</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best estimator: </span><span class="si">{</span><span class="n">grid_lr</span><span class="o">.</span><span class="n">best_estimator_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Scorer: </span><span class="si">{</span><span class="n">grid_lr</span><span class="o">.</span><span class="n">scorer_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best params: </span><span class="si">{</span><span class="n">grid_lr</span><span class="o">.</span><span class="n">best_params_</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best AUC score: </span><span class="si">{</span><span class="n">grid_lr</span><span class="o">.</span><span class="n">best_score_</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Best AUC score: </span><span class="si">{</span><span class="n">grid_lr</span><span class="o">.</span><span class="n">best_score_</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">model_coefs</span><span class="p">[</span><span class="n">model_coefs</span><span class="p">[</span><span class="s1">&#39;Coefficient&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">&#39;Coefficient&#39;</span><span class="p">)</span>
 <span class="n">m</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">Index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="p">)))</span>
 <span class="n">m</span><span class="o">.</span><span class="n">Index</span><span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">Index</span> <span class="o">+</span> <span class="mi">1</span>
@@ -1446,7 +1446,7 @@ Name: participant_id, dtype: int64
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.5551641873897212
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Max AUC score:0.5552
 
 Non-zero coefficients: 2
 
@@ -1454,7 +1454,7 @@ Best estimator: LogisticRegression(C=0.02, l1_ratio=1, max_iter=25, n_jobs=-1,
                    penalty=&#39;elasticnet&#39;, random_state=42, solver=&#39;saga&#39;)
 Scorer: make_scorer(roc_auc_score, needs_threshold=True)
 Best params: {&#39;C&#39;: 0.02, &#39;l1_ratio&#39;: 1, &#39;max_iter&#39;: 25}
-Best AUC score: 0.5492252417764205
+Best AUC score: 0.5492
 </pre></div>
 </div>
 <div class="output text_html"><div>
@@ -1543,19 +1543,19 @@ Best AUC score: 0.5492252417764205
 <span class="n">AUC_std</span><span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">stdev</span><span class="p">(</span><span class="n">AUCs</span><span class="p">)</span>
 <span class="n">AUC_mean</span><span class="o">=</span> <span class="n">st</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">AUCs</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;In-Sample AUC: </span><span class="si">{</span><span class="n">auc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MeanCV AUC: </span><span class="si">{</span><span class="n">AUC_mean</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Standard Deviation CV AUC: </span><span class="si">{</span><span class="n">AUC_std</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;In-Sample AUC: </span><span class="si">{</span><span class="n">auc</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;MeanCV AUC: </span><span class="si">{</span><span class="n">AUC_mean</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Standard Deviation CV AUC: </span><span class="si">{</span><span class="n">AUC_std</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>In-Sample AUC: 0.5551641873897212
-MeanCV AUC: 0.551185550334636
-Standard Deviation CV AUC: 0.030348111299971444
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>In-Sample AUC: 0.5552
+MeanCV AUC: 0.5512
+Standard Deviation CV AUC: 0.0303
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/y0/1x_8r5js5_z6xvnv37zjwr6r0000gn/T/ipykernel_59831/2757201537.py:35: FutureWarning: the &#39;line_terminator&#39;&#39; keyword is deprecated, use &#39;lineterminator&#39; instead.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/y0/1x_8r5js5_z6xvnv37zjwr6r0000gn/T/ipykernel_60081/2884735338.py:35: FutureWarning: the &#39;line_terminator&#39;&#39; keyword is deprecated, use &#39;lineterminator&#39; instead.
   AUC_out.to_csv(f&quot;data/{name}_AUCs.txt&quot;, sep=&#39;\t&#39;,index=False, line_terminator=&#39;\n&#39;)
 </pre></div>
 </div>

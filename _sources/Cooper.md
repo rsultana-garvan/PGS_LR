@@ -106,12 +106,12 @@ X_header = np.array(X.columns)
 
 data_array = np.vstack((X_header, coefs))
 model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-print(f'Max AUC score:{max_auc_score}\n')
+print(f'Max AUC score:{max_auc_score:.4f}\n')
 print(f'Non-zero coefficients: {num_coef}\n')
 print(f'Best estimator: {grid_lr.best_estimator_}')
 print(f'Scorer: {grid_lr.scorer_}')
 print(f'Best params: {grid_lr.best_params_}')
-print(f'Best AUC score: {grid_lr.best_score_}\n')
+print(f'Best AUC score: {grid_lr.best_score_:.4f}\n')
 m = model_coefs[model_coefs['Coefficient'] != 0 ].sort_values(by='Coefficient')
 m = m.reset_index(drop=True).assign(Index=range(len(m)))
 m.Index= m.Index + 1
@@ -160,9 +160,9 @@ AUC_out.to_csv(f"data/{name}_AUCs.txt", sep='\t',index=False, line_terminator='\
 AUC_std= st.stdev(AUCs)
 AUC_mean= st.mean(AUCs)
 
-print(f'In-Sample AUC: {auc}')
-print(f'MeanCV AUC: {AUC_mean}')
-print(f'Standard Deviation CV AUC: {AUC_std}')
+print(f'In-Sample AUC: {auc:.4f}')
+print(f'MeanCV AUC: {AUC_mean:.4f}')
+print(f'Standard Deviation CV AUC: {AUC_std:.4f}')
 ```
 
 ## Males
