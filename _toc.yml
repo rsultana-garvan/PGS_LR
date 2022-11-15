@@ -4,7 +4,8 @@
 format: jb-book
 root: intro
 chapters:
-- file: Cooper
+- file: Cooper10x5
+- file: Cooper5x10
 # - file: Nalls
 # - file: Boboli
 #- file: Chairta

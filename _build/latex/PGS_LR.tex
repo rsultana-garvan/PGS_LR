@@ -84,7 +84,7 @@
         
 
 \title{PGS logistic regression optimization}
-\date{Nov 09, 2022}
+\date{Nov 11, 2022}
 \release{}
 \author{Razvan Sultana}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -718,11 +718,420 @@ Index
 
 \end{sphinxuseclass}
 
+\section{NN}
+\label{\detokenize{Cooper:nn}}
+
+\subsection{Logistic regression model}
+\label{\detokenize{Cooper:id7}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{table1} \PYG{o}{=} \PYG{n}{table}\PYG{p}{[}\PYG{n}{table}\PYG{o}{.}\PYG{n}{inv\PYGZus{}genotype}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{NN}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}
+\PYG{n}{X} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{n}{table1}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{:}\PYG{p}{]}\PYG{p}{]}
+\PYG{n}{Y} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+\PYG{n}{lr} \PYG{o}{=} \PYG{n}{LogisticRegression}\PYG{p}{(}\PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{,} \PYG{n}{solver}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{saga}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{penalty}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{elasticnet}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{table1}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{participant\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{nunique}\PYG{p}{(}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+phenotype
+0    304
+1    338
+Name: participant\PYGZus{}id, dtype: int64
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Grid search for 3 hyperparameters}
+\label{\detokenize{Cooper:id8}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} parameters = \PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],}
+\PYG{c+c1}{\PYGZsh{}              \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],}
+\PYG{c+c1}{\PYGZsh{}              \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]\PYGZcb{}}
+
+\PYG{n}{parameters} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{C}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.01}\PYG{p}{,} \PYG{l+m+mf}{0.02}\PYG{p}{,} \PYG{l+m+mf}{0.05}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{max\PYGZus{}iter}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{25}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{l1\PYGZus{}ratio}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.5}\PYG{p}{,} \PYG{l+m+mf}{0.4}\PYG{p}{,} \PYG{l+m+mf}{0.3}\PYG{p}{]}\PYG{p}{\PYGZcb{}}
+
+\PYG{n}{grid\PYGZus{}lr} \PYG{o}{=} \PYG{n}{GridSearchCV}\PYG{p}{(}\PYG{n}{lr}\PYG{p}{,} \PYG{n}{parameters}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{scoring}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{roc\PYGZus{}auc}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
+\PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{warnoptions}\PYG{p}{:}
+    \PYG{n}{warnings}\PYG{o}{.}\PYG{n}{simplefilter}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{category}\PYG{o}{=}\PYG{n}{ConvergenceWarning}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{PYTHONWARNINGS}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} Also affect subprocesses}
+\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{X}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+GridSearchCV(cv=10,
+             estimator=LogisticRegression(n\PYGZus{}jobs=\PYGZhy{}1, penalty=\PYGZsq{}elasticnet\PYGZsq{},
+                                          random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{}),
+             n\PYGZus{}jobs=\PYGZhy{}1,
+             param\PYGZus{}grid=\PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.01, 0.02, 0.05], \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [0.5, 0.4, 0.3],
+                         \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25]\PYGZcb{},
+             scoring=\PYGZsq{}roc\PYGZus{}auc\PYGZsq{}, verbose=False)
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Best estimator}
+\label{\detokenize{Cooper:id9}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{best\PYGZus{}lr} \PYG{o}{=} \PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}
+
+\PYG{n}{max\PYGZus{}auc\PYGZus{}score} \PYG{o}{=} \PYG{n}{roc\PYGZus{}auc\PYGZus{}score}\PYG{p}{(}\PYG{n}{Y}\PYG{p}{,} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{predict\PYGZus{}proba}\PYG{p}{(}\PYG{n}{X}\PYG{p}{)}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{coefs} \PYG{o}{=} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{coef\PYGZus{}}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{p}{:}\PYG{p}{]}
+\PYG{n}{num\PYGZus{}coef} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{coefs} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{)}
+\PYG{n}{X\PYGZus{}header} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{X}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{)}
+
+\PYG{n}{data\PYGZus{}array} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{vstack}\PYG{p}{(}\PYG{p}{(}\PYG{n}{X\PYGZus{}header}\PYG{p}{,} \PYG{n}{coefs}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{model\PYGZus{}coefs} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data\PYGZus{}array}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SNP}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Max AUC score:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{max\PYGZus{}auc\PYGZus{}score}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Non\PYGZhy{}zero coefficients: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{num\PYGZus{}coef}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best estimator: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Scorer: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{scorer\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best params: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}params\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best score: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}score\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{!=} \PYG{l+m+mi}{0} \PYG{p}{]}\PYG{o}{.}\PYG{n}{sort\PYGZus{}values}\PYG{p}{(}\PYG{n}{by}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{assign}\PYG{p}{(}\PYG{n}{Index}\PYG{o}{=}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{m}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{Index}\PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{Index} \PYG{o}{+} \PYG{l+m+mi}{1}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{set\PYGZus{}index}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Index}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+Max AUC score:0.609418794767985
+
+Non\PYGZhy{}zero coefficients: 9
+
+Best estimator: LogisticRegression(C=0.02, l1\PYGZus{}ratio=0.3, max\PYGZus{}iter=10, n\PYGZus{}jobs=\PYGZhy{}1,
+                   penalty=\PYGZsq{}elasticnet\PYGZsq{}, random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{})
+Scorer: make\PYGZus{}scorer(roc\PYGZus{}auc\PYGZus{}score, needs\PYGZus{}threshold=True)
+Best params: \PYGZob{}\PYGZsq{}C\PYGZsq{}: 0.02, \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: 0.3, \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: 10\PYGZcb{}
+Best score: 0.5288828992007361
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+              SNP Coefficient
+Index                        
+1       rs7826007   \PYGZhy{}0.013424
+2       rs4897753    0.001234
+3       rs3822023    0.005838
+4       rs6842271    0.010758
+5      rs12434297    0.012576
+6          rs6964    0.014571
+7       rs9985581    0.020144
+8       rs3806760    0.031815
+9      rs11248057    0.106701
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\section{NI}
+\label{\detokenize{Cooper:ni}}
+
+\subsection{Logistic regression model}
+\label{\detokenize{Cooper:id10}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{table1} \PYG{o}{=} \PYG{n}{table}\PYG{p}{[}\PYG{n}{table}\PYG{o}{.}\PYG{n}{inv\PYGZus{}genotype}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{NI}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}
+\PYG{n}{X} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{n}{table1}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{:}\PYG{p}{]}\PYG{p}{]}
+\PYG{n}{Y} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+\PYG{n}{lr} \PYG{o}{=} \PYG{n}{LogisticRegression}\PYG{p}{(}\PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{,} \PYG{n}{solver}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{saga}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{penalty}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{elasticnet}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{table1}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{participant\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{nunique}\PYG{p}{(}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+phenotype
+0    739
+1    747
+Name: participant\PYGZus{}id, dtype: int64
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Grid search for 3 hyperparameters}
+\label{\detokenize{Cooper:id11}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} parameters = \PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],}
+\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],}
+\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]\PYGZcb{}}
+
+\PYG{n}{parameters} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{C}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.005}\PYG{p}{,} \PYG{l+m+mf}{0.01}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{max\PYGZus{}iter}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{25}\PYG{p}{,} \PYG{l+m+mi}{50}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{l1\PYGZus{}ratio}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.1}\PYG{p}{]}\PYG{p}{\PYGZcb{}}
+
+\PYG{n}{grid\PYGZus{}lr} \PYG{o}{=} \PYG{n}{GridSearchCV}\PYG{p}{(}\PYG{n}{lr}\PYG{p}{,} \PYG{n}{parameters}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{scoring}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{roc\PYGZus{}auc}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
+\PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{warnoptions}\PYG{p}{:}
+    \PYG{n}{warnings}\PYG{o}{.}\PYG{n}{simplefilter}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{category}\PYG{o}{=}\PYG{n}{ConvergenceWarning}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{PYTHONWARNINGS}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} Also affect subprocesses}
+\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{X}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+GridSearchCV(cv=10,
+             estimator=LogisticRegression(n\PYGZus{}jobs=\PYGZhy{}1, penalty=\PYGZsq{}elasticnet\PYGZsq{},
+                                          random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{}),
+             n\PYGZus{}jobs=\PYGZhy{}1,
+             param\PYGZus{}grid=\PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01], \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [0.2, 0.1],
+                         \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50]\PYGZcb{},
+             scoring=\PYGZsq{}roc\PYGZus{}auc\PYGZsq{}, verbose=False)
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Best estimator}
+\label{\detokenize{Cooper:id12}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{best\PYGZus{}lr} \PYG{o}{=} \PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}
+
+\PYG{n}{max\PYGZus{}auc\PYGZus{}score} \PYG{o}{=} \PYG{n}{roc\PYGZus{}auc\PYGZus{}score}\PYG{p}{(}\PYG{n}{Y}\PYG{p}{,} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{predict\PYGZus{}proba}\PYG{p}{(}\PYG{n}{X}\PYG{p}{)}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{coefs} \PYG{o}{=} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{coef\PYGZus{}}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{p}{:}\PYG{p}{]}
+\PYG{n}{num\PYGZus{}coef} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{coefs} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{)}
+\PYG{n}{X\PYGZus{}header} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{X}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{)}
+
+\PYG{n}{data\PYGZus{}array} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{vstack}\PYG{p}{(}\PYG{p}{(}\PYG{n}{X\PYGZus{}header}\PYG{p}{,} \PYG{n}{coefs}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{model\PYGZus{}coefs} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data\PYGZus{}array}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SNP}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Max AUC score:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{max\PYGZus{}auc\PYGZus{}score}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Non\PYGZhy{}zero coefficients: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{num\PYGZus{}coef}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best estimator: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Scorer: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{scorer\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best params: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}params\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best score: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}score\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{!=} \PYG{l+m+mi}{0} \PYG{p}{]}\PYG{o}{.}\PYG{n}{sort\PYGZus{}values}\PYG{p}{(}\PYG{n}{by}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{assign}\PYG{p}{(}\PYG{n}{Index}\PYG{o}{=}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{m}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{Index}\PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{Index} \PYG{o}{+} \PYG{l+m+mi}{1}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{set\PYGZus{}index}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Index}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+Max AUC score:0.5796736789286148
+
+Non\PYGZhy{}zero coefficients: 8
+
+Best estimator: LogisticRegression(C=0.01, l1\PYGZus{}ratio=0.2, max\PYGZus{}iter=10, n\PYGZus{}jobs=\PYGZhy{}1,
+                   penalty=\PYGZsq{}elasticnet\PYGZsq{}, random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{})
+Scorer: make\PYGZus{}scorer(roc\PYGZus{}auc\PYGZus{}score, needs\PYGZus{}threshold=True)
+Best params: \PYGZob{}\PYGZsq{}C\PYGZsq{}: 0.01, \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: 0.2, \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: 10\PYGZcb{}
+Best score: 0.5327258606255274
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+              SNP Coefficient
+Index                        
+1       rs7520918   \PYGZhy{}0.045971
+2       rs1949362   \PYGZhy{}0.017297
+3       rs6532190    0.008321
+4      rs17016235     0.00924
+5       rs6842271    0.023003
+6       rs9985581     0.03514
+7       rs7682766    0.036363
+8       rs3806760    0.047802
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\section{II}
+\label{\detokenize{Cooper:ii}}
+
+\subsection{Logistic regression model}
+\label{\detokenize{Cooper:id13}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{table1} \PYG{o}{=} \PYG{n}{table}\PYG{p}{[}\PYG{n}{table}\PYG{o}{.}\PYG{n}{inv\PYGZus{}genotype}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{II}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]}
+\PYG{n}{X} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{n}{table1}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{:}\PYG{p}{]}\PYG{p}{]}
+\PYG{n}{Y} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
+\PYG{n}{lr} \PYG{o}{=} \PYG{n}{LogisticRegression}\PYG{p}{(}\PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{,} \PYG{n}{solver}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{saga}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{penalty}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{elasticnet}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{table1}\PYG{o}{.}\PYG{n}{groupby}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{participant\PYGZus{}id}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{o}{.}\PYG{n}{nunique}\PYG{p}{(}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+phenotype
+0    513
+1    471
+Name: participant\PYGZus{}id, dtype: int64
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Grid search for 3 hyperparameters}
+\label{\detokenize{Cooper:id14}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{\PYGZsh{} parameters = \PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],}
+\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],}
+\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]\PYGZcb{}}
+
+\PYG{n}{parameters} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{C}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.005}\PYG{p}{,} \PYG{l+m+mf}{0.01}\PYG{p}{,} \PYG{l+m+mf}{0.02}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{max\PYGZus{}iter}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{50}\PYG{p}{,} \PYG{l+m+mi}{100}\PYG{p}{,} \PYG{l+m+mi}{200}\PYG{p}{]}\PYG{p}{,}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{l1\PYGZus{}ratio}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.1}\PYG{p}{]}\PYG{p}{\PYGZcb{}}
+
+\PYG{n}{grid\PYGZus{}lr} \PYG{o}{=} \PYG{n}{GridSearchCV}\PYG{p}{(}\PYG{n}{lr}\PYG{p}{,} \PYG{n}{parameters}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{scoring}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{roc\PYGZus{}auc}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
+\PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{warnoptions}\PYG{p}{:}
+    \PYG{n}{warnings}\PYG{o}{.}\PYG{n}{simplefilter}\PYG{p}{(}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n}{category}\PYG{o}{=}\PYG{n}{ConvergenceWarning}\PYG{p}{)}
+    \PYG{n}{os}\PYG{o}{.}\PYG{n}{environ}\PYG{p}{[}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{PYTHONWARNINGS}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{]} \PYG{o}{=} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{ignore}\PYG{l+s+s2}{\PYGZdq{}} \PYG{c+c1}{\PYGZsh{} Also affect subprocesses}
+\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{fit}\PYG{p}{(}\PYG{n}{X}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+GridSearchCV(cv=10,
+             estimator=LogisticRegression(n\PYGZus{}jobs=\PYGZhy{}1, penalty=\PYGZsq{}elasticnet\PYGZsq{},
+                                          random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{}),
+             n\PYGZus{}jobs=\PYGZhy{}1,
+             param\PYGZus{}grid=\PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01, 0.02], \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [0.2, 0.1],
+                         \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [50, 100, 200]\PYGZcb{},
+             scoring=\PYGZsq{}roc\PYGZus{}auc\PYGZsq{}, verbose=False)
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
+\subsection{Best estimator}
+\label{\detokenize{Cooper:id15}}
+\begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
+
+\begin{sphinxuseclass}{cell_input}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{n}{best\PYGZus{}lr} \PYG{o}{=} \PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}
+
+\PYG{n}{max\PYGZus{}auc\PYGZus{}score} \PYG{o}{=} \PYG{n}{roc\PYGZus{}auc\PYGZus{}score}\PYG{p}{(}\PYG{n}{Y}\PYG{p}{,} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{predict\PYGZus{}proba}\PYG{p}{(}\PYG{n}{X}\PYG{p}{)}\PYG{p}{[}\PYG{p}{:}\PYG{p}{,} \PYG{l+m+mi}{1}\PYG{p}{]}\PYG{p}{)}
+\PYG{n}{coefs} \PYG{o}{=} \PYG{n}{best\PYGZus{}lr}\PYG{o}{.}\PYG{n}{coef\PYGZus{}}\PYG{p}{[}\PYG{l+m+mi}{0}\PYG{p}{,} \PYG{p}{:}\PYG{p}{]}
+\PYG{n}{num\PYGZus{}coef} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{sum}\PYG{p}{(}\PYG{n}{coefs} \PYG{o}{!=} \PYG{l+m+mi}{0}\PYG{p}{)}
+\PYG{n}{X\PYGZus{}header} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{array}\PYG{p}{(}\PYG{n}{X}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{)}
+
+\PYG{n}{data\PYGZus{}array} \PYG{o}{=} \PYG{n}{np}\PYG{o}{.}\PYG{n}{vstack}\PYG{p}{(}\PYG{p}{(}\PYG{n}{X\PYGZus{}header}\PYG{p}{,} \PYG{n}{coefs}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{model\PYGZus{}coefs} \PYG{o}{=} \PYG{n}{pd}\PYG{o}{.}\PYG{n}{DataFrame}\PYG{p}{(}\PYG{n}{data}\PYG{o}{=}\PYG{n}{data\PYGZus{}array}\PYG{o}{.}\PYG{n}{T}\PYG{p}{,} \PYG{n}{columns}\PYG{o}{=}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{SNP}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Max AUC score:}\PYG{l+s+si}{\PYGZob{}}\PYG{n}{max\PYGZus{}auc\PYGZus{}score}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Non\PYGZhy{}zero coefficients: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{num\PYGZus{}coef}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best estimator: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}estimator\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Scorer: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{scorer\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best params: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}params\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n+nb}{print}\PYG{p}{(}\PYG{l+s+sa}{f}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Best score: }\PYG{l+s+si}{\PYGZob{}}\PYG{n}{grid\PYGZus{}lr}\PYG{o}{.}\PYG{n}{best\PYGZus{}score\PYGZus{}}\PYG{l+s+si}{\PYGZcb{}}\PYG{l+s+se}{\PYGZbs{}n}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{n}{model\PYGZus{}coefs}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{!=} \PYG{l+m+mi}{0} \PYG{p}{]}\PYG{o}{.}\PYG{n}{sort\PYGZus{}values}\PYG{p}{(}\PYG{n}{by}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Coefficient}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{reset\PYGZus{}index}\PYG{p}{(}\PYG{n}{drop}\PYG{o}{=}\PYG{k+kc}{True}\PYG{p}{)}\PYG{o}{.}\PYG{n}{assign}\PYG{p}{(}\PYG{n}{Index}\PYG{o}{=}\PYG{n+nb}{range}\PYG{p}{(}\PYG{n+nb}{len}\PYG{p}{(}\PYG{n}{m}\PYG{p}{)}\PYG{p}{)}\PYG{p}{)}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{Index}\PYG{o}{=} \PYG{n}{m}\PYG{o}{.}\PYG{n}{Index} \PYG{o}{+} \PYG{l+m+mi}{1}
+\PYG{n}{m}\PYG{o}{.}\PYG{n}{set\PYGZus{}index}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{Index}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimInput}
+\begin{sphinxVerbatimOutput}
+
+\begin{sphinxuseclass}{cell_output}
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+Max AUC score:0.6603758748132421
+
+Non\PYGZhy{}zero coefficients: 26
+
+Best estimator: LogisticRegression(C=0.01, l1\PYGZus{}ratio=0.1, n\PYGZus{}jobs=\PYGZhy{}1, penalty=\PYGZsq{}elasticnet\PYGZsq{},
+                   random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{})
+Scorer: make\PYGZus{}scorer(roc\PYGZus{}auc\PYGZus{}score, needs\PYGZus{}threshold=True)
+Best params: \PYGZob{}\PYGZsq{}C\PYGZsq{}: 0.01, \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: 0.1, \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: 100\PYGZcb{}
+Best score: 0.5940495196987687
+\end{sphinxVerbatim}
+
+\begin{sphinxVerbatim}[commandchars=\\\{\}]
+               SNP Coefficient
+Index                         
+1          rs34333   \PYGZhy{}0.057329
+2         rs494312    \PYGZhy{}0.05673
+3        rs3733349   \PYGZhy{}0.055571
+4        rs6871718   \PYGZhy{}0.051304
+5         rs444618   \PYGZhy{}0.032258
+6        rs1736103   \PYGZhy{}0.031732
+7        rs7535292   \PYGZhy{}0.026481
+8       rs13161496   \PYGZhy{}0.016119
+9        rs4331494   \PYGZhy{}0.004139
+10      rs34992950   \PYGZhy{}0.003211
+11      rs12510869   \PYGZhy{}0.000945
+12       rs2412116    0.001716
+13       rs2410595    0.003706
+14       rs4859611    0.014846
+15     rs112318363    0.015892
+16        rs379066    0.019658
+17      rs13188899    0.030844
+18      rs12935995     0.03166
+19        rs231454    0.036038
+20       rs3822023    0.043356
+21      rs11097213    0.059403
+22      rs11248057    0.077958
+23      rs12434297    0.094157
+24      rs11264302    0.095165
+25       rs3806760    0.114488
+26          rs5848    0.126228
+\end{sphinxVerbatim}
+
+\end{sphinxuseclass}\end{sphinxVerbatimOutput}
+
+\end{sphinxuseclass}
+
 \section{NN Males}
 \label{\detokenize{Cooper:nn-males}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id7}}
+\label{\detokenize{Cooper:id16}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -750,7 +1159,7 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id8}}
+\label{\detokenize{Cooper:id17}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -789,7 +1198,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id9}}
+\label{\detokenize{Cooper:id18}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -876,7 +1285,7 @@ Index
 \label{\detokenize{Cooper:ni-males}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id10}}
+\label{\detokenize{Cooper:id19}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -904,7 +1313,7 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id11}}
+\label{\detokenize{Cooper:id20}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -943,7 +1352,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id12}}
+\label{\detokenize{Cooper:id21}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1002,7 +1411,7 @@ Index
 \label{\detokenize{Cooper:ii-males}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id13}}
+\label{\detokenize{Cooper:id22}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1030,7 +1439,7 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id14}}
+\label{\detokenize{Cooper:id23}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1069,7 +1478,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id15}}
+\label{\detokenize{Cooper:id24}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1142,7 +1551,7 @@ Index
 \label{\detokenize{Cooper:nn-females}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id16}}
+\label{\detokenize{Cooper:id25}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1170,7 +1579,7 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id17}}
+\label{\detokenize{Cooper:id26}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1209,7 +1618,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id18}}
+\label{\detokenize{Cooper:id27}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1376,12 +1785,12 @@ Index
 \label{\detokenize{Cooper:ni-females}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id19}}
+\label{\detokenize{Cooper:id28}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{table1} \PYG{o}{=} \PYG{n}{table}\PYG{p}{[}\PYG{p}{(}\PYG{n}{table}\PYG{o}{.}\PYG{n}{gender} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{M}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{table}\PYG{o}{.}\PYG{n}{inv\PYGZus{}genotype}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{NI}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
+\PYG{n}{table1} \PYG{o}{=} \PYG{n}{table}\PYG{p}{[}\PYG{p}{(}\PYG{n}{table}\PYG{o}{.}\PYG{n}{gender} \PYG{o}{==} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{F}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)} \PYG{o}{\PYGZam{}} \PYG{p}{(}\PYG{n}{table}\PYG{o}{.}\PYG{n}{inv\PYGZus{}genotype}\PYG{o}{==}\PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+s2}{NI}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{)}\PYG{p}{]}
 \PYG{n}{X} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{n}{table1}\PYG{o}{.}\PYG{n}{columns}\PYG{p}{[}\PYG{l+m+mi}{5}\PYG{p}{:}\PYG{p}{]}\PYG{p}{]}
 \PYG{n}{Y} \PYG{o}{=} \PYG{n}{table1}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{phenotype}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]}
 \PYG{n}{lr} \PYG{o}{=} \PYG{n}{LogisticRegression}\PYG{p}{(}\PYG{n}{random\PYGZus{}state}\PYG{o}{=}\PYG{l+m+mi}{42}\PYG{p}{,} \PYG{n}{solver}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{saga}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{penalty}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{elasticnet}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{)}
@@ -1394,8 +1803,8 @@ Index
 \begin{sphinxuseclass}{cell_output}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 phenotype
-0    480
-1    477
+0    259
+1    270
 Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxVerbatim}
 
@@ -1404,18 +1813,18 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id20}}
+\label{\detokenize{Cooper:id29}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
 \PYG{c+c1}{\PYGZsh{} parameters = \PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 10, 20, 30],}
-\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],}
-\PYG{c+c1}{\PYGZsh{}               \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]\PYGZcb{}}
+\PYG{c+c1}{\PYGZsh{}              \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25, 50, 75, 100, 150, 200, 400, 800, 1600],}
+\PYG{c+c1}{\PYGZsh{}              \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]\PYGZcb{}}
 
 \PYG{n}{parameters} \PYG{o}{=} \PYG{p}{\PYGZob{}}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{C}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.005}\PYG{p}{,} \PYG{l+m+mf}{0.01}\PYG{p}{]}\PYG{p}{,}
               \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{max\PYGZus{}iter}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{10}\PYG{p}{,} \PYG{l+m+mi}{25}\PYG{p}{]}\PYG{p}{,}
-              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{l1\PYGZus{}ratio}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mf}{0.2}\PYG{p}{,} \PYG{l+m+mf}{0.1}\PYG{p}{]}\PYG{p}{\PYGZcb{}}
+              \PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{l1\PYGZus{}ratio}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{:} \PYG{p}{[}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{l+m+mf}{0.9}\PYG{p}{]}\PYG{p}{\PYGZcb{}}
 
 \PYG{n}{grid\PYGZus{}lr} \PYG{o}{=} \PYG{n}{GridSearchCV}\PYG{p}{(}\PYG{n}{lr}\PYG{p}{,} \PYG{n}{parameters}\PYG{p}{,} \PYG{n}{verbose}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{,} \PYG{n}{scoring}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{roc\PYGZus{}auc}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{,} \PYG{n}{n\PYGZus{}jobs}\PYG{o}{=}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{p}{,} \PYG{n}{cv}\PYG{o}{=}\PYG{l+m+mi}{10}\PYG{p}{)}
 \PYG{k}{if} \PYG{o+ow}{not} \PYG{n}{sys}\PYG{o}{.}\PYG{n}{warnoptions}\PYG{p}{:}
@@ -1433,7 +1842,7 @@ GridSearchCV(cv=10,
              estimator=LogisticRegression(n\PYGZus{}jobs=\PYGZhy{}1, penalty=\PYGZsq{}elasticnet\PYGZsq{},
                                           random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{}),
              n\PYGZus{}jobs=\PYGZhy{}1,
-             param\PYGZus{}grid=\PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01], \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [0.2, 0.1],
+             param\PYGZus{}grid=\PYGZob{}\PYGZsq{}C\PYGZsq{}: [0.005, 0.01], \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: [1, 0.9],
                          \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: [10, 25]\PYGZcb{},
              scoring=\PYGZsq{}roc\PYGZus{}auc\PYGZsq{}, verbose=False)
 \end{sphinxVerbatim}
@@ -1443,7 +1852,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id21}}
+\label{\detokenize{Cooper:id30}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1474,24 +1883,21 @@ GridSearchCV(cv=10,
 
 \begin{sphinxuseclass}{cell_output}
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-Max AUC score:0.5835888364779874
+Max AUC score:0.5
 
-Non\PYGZhy{}zero coefficients: 4
+Non\PYGZhy{}zero coefficients: 0
 
-Best estimator: LogisticRegression(C=0.005, l1\PYGZus{}ratio=0.1, max\PYGZus{}iter=25, n\PYGZus{}jobs=\PYGZhy{}1,
+Best estimator: LogisticRegression(C=0.005, l1\PYGZus{}ratio=1, max\PYGZus{}iter=10, n\PYGZus{}jobs=\PYGZhy{}1,
                    penalty=\PYGZsq{}elasticnet\PYGZsq{}, random\PYGZus{}state=42, solver=\PYGZsq{}saga\PYGZsq{})
 Scorer: make\PYGZus{}scorer(roc\PYGZus{}auc\PYGZus{}score, needs\PYGZus{}threshold=True)
-Best params: \PYGZob{}\PYGZsq{}C\PYGZsq{}: 0.005, \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: 0.1, \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: 25\PYGZcb{}
-Best score: 0.5212733636229314
+Best params: \PYGZob{}\PYGZsq{}C\PYGZsq{}: 0.005, \PYGZsq{}l1\PYGZus{}ratio\PYGZsq{}: 1, \PYGZsq{}max\PYGZus{}iter\PYGZsq{}: 10\PYGZcb{}
+Best score: 0.5
 \end{sphinxVerbatim}
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-             SNP Coefficient
-Index                       
-1      rs7520918   \PYGZhy{}0.011899
-2      rs9985581    0.016555
-3      rs6842271    0.016555
-4      rs3806760    0.027075
+Empty DataFrame
+Columns: [SNP, Coefficient]
+Index: []
 \end{sphinxVerbatim}
 
 \end{sphinxuseclass}\end{sphinxVerbatimOutput}
@@ -1502,7 +1908,7 @@ Index
 \label{\detokenize{Cooper:ii-females}}
 
 \subsection{Logistic regression model}
-\label{\detokenize{Cooper:id22}}
+\label{\detokenize{Cooper:id31}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1530,7 +1936,7 @@ Name: participant\PYGZus{}id, dtype: int64
 \end{sphinxuseclass}
 
 \subsection{Grid search for 3 hyperparameters}
-\label{\detokenize{Cooper:id23}}
+\label{\detokenize{Cooper:id32}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
@@ -1569,7 +1975,7 @@ GridSearchCV(cv=10,
 \end{sphinxuseclass}
 
 \subsection{Best estimator}
-\label{\detokenize{Cooper:id24}}
+\label{\detokenize{Cooper:id33}}
 \begin{sphinxuseclass}{cell}\begin{sphinxVerbatimInput}
 
 \begin{sphinxuseclass}{cell_input}
