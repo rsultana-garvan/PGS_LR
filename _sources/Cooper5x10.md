@@ -31,6 +31,95 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, auc, RocCurveDisplay
 from sklearn.model_selection import GridSearchCV, RepeatedKFold, StratifiedKFold
 from sklearn.exceptions import ConvergenceWarning
+
+
+def plot_ROCs(name, bp, X, y):
+    # Runs classifier with cross-validation and plots ROC curves
+    #
+    # Parameters:
+    # name (str): Name of the dataset - used for the plot title and .csv files
+    # bp (dict): Dictionary with best parameter values for LogisticRegression()
+    # X (DataFrame): dataframe with sample features
+    # y (array): array with response variable
+
+    cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
+    classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
+          solver='saga', n_jobs=-1, penalty='elasticnet')
+
+    tprs = []
+    aucs = []
+    mean_fpr = np.linspace(0, 1, 100)
+
+    plt.rcParams['figure.figsize'] = [14, 12]
+    fig, ax = plt.subplots()
+    for i, (train, test) in enumerate(cv.split(X, y)):
+        classifier.fit(X.iloc[train,], y.iloc[train])
+        viz = RocCurveDisplay.from_estimator(
+            classifier,
+            X.iloc[test,],
+            y.iloc[test],
+            name=f"ROC fold {i + 1}",
+            alpha=0.2,
+            lw=1,
+            ax=ax,
+        )
+        interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
+        interp_tpr[0] = 0.0
+        tprs.append(interp_tpr)
+        aucs.append(viz.roc_auc)
+        X_header = np.array(X.columns)
+        data_array = np.vstack((X_header, classifier.coef_[0,:]))
+        model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
+        m_name = f'data/{name}_5fold_repeat{i+1:02}_coefficients.txt'
+        model_coefs.to_csv(m_name, sep='\t',index=False)
+
+    ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
+
+    classifier.fit(X, y)
+    viz = RocCurveDisplay.from_estimator(
+        classifier,
+        X,
+        y,
+        name=f"In-sample ROC",
+        alpha=0.6,
+        color="k",
+        lw=2,
+        ax=ax,
+    )
+
+    mean_tpr = np.mean(tprs, axis=0)
+    mean_tpr[-1] = 1.0
+    mean_auc = auc(mean_fpr, mean_tpr)
+    std_auc = np.std(aucs)
+    ax.plot(
+        mean_fpr,
+        mean_tpr,
+        color="b",
+        label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
+        lw=2,
+        alpha=0.6,
+    )
+
+    std_tpr = np.std(tprs, axis=0)
+    tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
+    tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
+    ax.fill_between(
+        mean_fpr,
+        tprs_lower,
+        tprs_upper,
+        color="grey",
+        alpha=0.4,
+        label=r"$\pm$ 1 std. dev.",
+    )
+
+    ax.set(
+        xlim=[-0.05, 1.05],
+        ylim=[-0.05, 1.05],
+        title=f"Receiver operating characteristic for {name} samples",
+    )
+    ax.legend(loc="lower right", fontsize='xx-small'
+    )
+    plt.show()
 ```
 
 ### Read input matrix with genotypes
@@ -122,87 +211,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "all"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("all", grid_lr.best_params_, X, y)
 ```
 
 
@@ -263,87 +272,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "M"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("M", grid_lr.best_params_, X, y)
 ```
 
 
@@ -404,87 +333,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "F"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("F", grid_lr.best_params_, X, y)
 ```
 
 
@@ -545,89 +394,8 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "NN"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("NN", grid_lr.best_params_, X, y)
 ```
-
 
 ## NI
 
@@ -686,87 +454,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "NI"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("NI", grid_lr.best_params_, X, y)
 ```
 
 
@@ -827,87 +515,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "II"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("II", grid_lr.best_params_, X, y)
 ```
 
 
@@ -968,87 +576,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "M-NN"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("M-NN", grid_lr.best_params_, X, y)
 ```
 
 
@@ -1109,87 +637,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "M-NI"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("M-NI", grid_lr.best_params_, X, y)
 ```
 
 
@@ -1250,87 +698,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "M-II"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("M-II", grid_lr.best_params_, X, y)
 ```
 
 
@@ -1391,87 +759,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "F-NN"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("F-NN", grid_lr.best_params_, X, y)
 ```
 
 
@@ -1532,87 +820,7 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "F-NI"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("F-NI", grid_lr.best_params_, X, y)
 ```
 
 
@@ -1673,85 +881,5 @@ m.set_index('Index')
 ### ROC with cross-validation
 
 ```{code-cell}
-# Run classifier with cross-validation and plot ROC curves
-name = "F-II"
-bp = grid_lr.best_params_
-cv = RepeatedKFold(n_splits=5, n_repeats=10, random_state=42)
-classifier = LogisticRegression(C=bp['C'], max_iter=bp['max_iter'], l1_ratio=bp['l1_ratio'], random_state=42,
-      solver='saga', n_jobs=-1, penalty='elasticnet')
-
-tprs = []
-aucs = []
-mean_fpr = np.linspace(0, 1, 100)
-
-plt.rcParams['figure.figsize'] = [14, 12]
-fig, ax = plt.subplots()
-for i, (train, test) in enumerate(cv.split(X, y)):
-    classifier.fit(X.iloc[train,], y.iloc[train])
-    viz = RocCurveDisplay.from_estimator(
-        classifier,
-        X.iloc[test,],
-        y.iloc[test],
-        name=f"ROC fold {i + 1}",
-        alpha=0.2,
-        lw=1,
-        ax=ax,
-    )
-    interp_tpr = np.interp(mean_fpr, viz.fpr, viz.tpr)
-    interp_tpr[0] = 0.0
-    tprs.append(interp_tpr)
-    aucs.append(viz.roc_auc)
-    X_header = np.array(X.columns)
-    data_array = np.vstack((X_header, classifier.coef_[0,:]))
-    model_coefs = pd.DataFrame(data=data_array.T, columns=['SNP', 'Coefficient'])
-    m_name = f'data/{name}_10fold_repeat{i+1:02}_coefficients.txt'
-    model_coefs.to_csv(m_name, sep='\t',index=False)
-
-ax.plot([0, 1], [0, 1], linestyle="--", lw=2, color="r", label="Chance", alpha=0.8)
-
-classifier.fit(X, y)
-viz = RocCurveDisplay.from_estimator(
-    classifier,
-    X,
-    y,
-    name=f"In-sample ROC",
-    alpha=0.6,
-    color="k",
-    lw=2,
-    ax=ax,
-)
-
-mean_tpr = np.mean(tprs, axis=0)
-mean_tpr[-1] = 1.0
-mean_auc = auc(mean_fpr, mean_tpr)
-std_auc = np.std(aucs)
-ax.plot(
-    mean_fpr,
-    mean_tpr,
-    color="b",
-    label=r"Mean ROC (AUC = %0.2f $\pm$ %0.2f)" % (mean_auc, std_auc),
-    lw=2,
-    alpha=0.6,
-)
-
-std_tpr = np.std(tprs, axis=0)
-tprs_upper = np.minimum(mean_tpr + std_tpr, 1)
-tprs_lower = np.maximum(mean_tpr - std_tpr, 0)
-ax.fill_between(
-    mean_fpr,
-    tprs_lower,
-    tprs_upper,
-    color="grey",
-    alpha=0.4,
-    label=r"$\pm$ 1 std. dev.",
-)
-
-ax.set(
-    xlim=[-0.05, 1.05],
-    ylim=[-0.05, 1.05],
-    title=f"Receiver operating characteristic for {name} samples",
-)
-ax.legend(loc="lower right", fontsize='xx-small'
-)
-plt.show()
+plot_ROCs("F-II", grid_lr.best_params_, X, y)
 ```
